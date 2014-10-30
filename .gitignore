@@ -1,6 +1,8 @@
 /target
 /classes
 /checkouts
+/migrations
+!/migrations/.keep
 pom.xml
 pom.xml.asc
 *.jar

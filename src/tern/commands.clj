@@ -1,38 +1,83 @@
 (ns tern.commands
-  (:require [tern.config         :as config]
-            [tern.file           :as f]
-            [tern.db             :as db]
-            [tern.postgresql     :as postgresql]
-            [leiningen.core.main :refer [info]]))
-
-(def
-  ^{:private true
-    :doc "The implementation instance to use."}
-  impl
-  (delay (case @config/implementation
-           :postgresql (postgresql/impl @config/db))))
+  (:require [tern.config          :as config]
+            [tern.db              :as db]
+            [tern.file            :as f :refer [fname]]
+            [tern.implementations :as impl]
+            [tern.log             :as log]
+            [tern.migrate         :as migrate]
+            [tern.jdbc            :as jdbc]))
 
 (defn init
   "Creates the table used by `tern` to track versions."
-  []
-  (db/init @impl))
+  [config]
+  (db/init (impl/factory config)))
 
 (defn version
   "Prints the database's current version."
-  []
-  (info "Soon!"))
+  [config]
+  (log/info "The database is at version" (db/version (impl/factory config))))
 
 (defn new-migration
   "Creates a new migration file using the given name.
   It is preceded by a timestamp, so as to preserve ordering."
-  [name]
-  (let [filename (f/generate-name name)]
-    (spit filename (pr-str {}))
-    (info filename)))
+  [config name]
+  (log/info "Creating:" (f/new-migration config name)))
 
-(defn print-config
+(defn config
   "Prints the current configuration values used by `tern`."
-  []
-  (info "Tern is currently set to use these config values:")
-  (info "migration-dir:    " @config/migration-dir))
+  [{:keys [version-table migration-dir db color]}]
+  (log/info (log/keyword ":migration-dir ") migration-dir)
+  (log/info (log/keyword ":version-table ") version-table)
+  (log/info (log/keyword ":color         ") color)
+  (log/info (log/keyword ":db"))
+  (log/info (log/keyword "  :host        ") (:host db))
+  (log/info (log/keyword "  :port        ") (:port db))
+  (log/info (log/keyword "  :database    ") (:database db))
+  (log/info (log/keyword "  :user        ") (:user db))
+  (log/info (log/keyword "  :password    ") (:password db))
+  (log/info (log/keyword "  :subprotocol ") (:subprotocol db)))
 
+(defn migrate
+  "Runs any pending migrations to bring the database up to the latest version."
+  [config]
+  (let [impl    (impl/factory config)
+        from    (db/version impl)
+        to      (migrate/version config)
+        pending (migrate/pending config from)]
+    (log/info "#######################################################")
+    (log/info "Migrating from version" (log/highlight from) "to" (log/highlight to))
+    (log/info "#######################################################")
+    (doseq [migration pending]
+      (log/info "Processing" (log/filename (fname migration)))
+      (migrate/run impl migration))
+    (if (seq pending)
+      (log/info "Migration complete")
+      (log/info "There were no changes to apply"))))
+
+(defn rollback
+  "Rolls back the most recent migration"
+  [config]
+  (let [impl      (impl/factory config)
+        from      (db/version impl)
+        to        (migrate/previous-version config from)]
+    (log/info "#######################################################")
+    (log/info "Rolling back from version" (log/highlight from) "to" (log/highlight to))
+    (log/info "#######################################################")
+    (if-let [migration (migrate/get-migration config from)]
+      (do
+        (migrate/rollback impl migration to)
+        (log/info "Rollback complete"))
+      (log/info "There were no changes to roll back"))))
+
+(defn reset
+  "Reverts all migrations, returning database to it's original state."
+  [config]
+  (println "Are you sure? This will roll back ALL migrations. y/n")
+  (when (= "y" (read-line))
+    (let [impl    (impl/factory config)
+          version (db/version impl)]
+      (log/info "#######################################################")
+      (log/info "Rolling back ALL migrations")
+      (log/info "#######################################################")
+      (migrate/reset impl version)
+      (log/info "Reset complete"))))

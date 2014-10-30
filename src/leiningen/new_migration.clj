@@ -1,9 +1,7 @@
 (ns leiningen.new-migration
-  (:require [tern.config   :as config]
-            [tern.commands :as c]))
+  (:require [leiningen.tern :as tern]))
 
 (defn new-migration
   "Generates a new migration file using the given name."
   [project name]
-  (config/init! project)
-  (c/new-migration name))
+  (tern/tern project "new-migration" name))
