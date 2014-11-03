@@ -10,8 +10,5 @@
 
 (register! :dummy ->DummyMigrator)
 
-(expect {:config {:impl :dummy}}
-        (factory {:impl :dummy}))
-
-(expect nil
-        (factory {:impl :not-exist}))
+(expect {:config {:db {:subprotocol "dummy"}}}
+        (factory {:db {:subprotocol "dummy"}}))

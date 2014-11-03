@@ -1,9 +1,11 @@
-(ns tern.implementations)
+(ns tern.implementations
+  (:require [tern.postgresql :as postgresql]
+            [tern.log        :as log]))
 
 (def ^{:doc "A map of available migrator implementations."
        :private true}
   constructor-store
-  (atom {}))
+  (atom {:postgresql postgresql/->PostgresqlMigrator}))
 
 (defn register!
   "Register a new tern implementation. This function
@@ -17,6 +19,9 @@
 (defn factory
   "Factory create a `Migrator` for the given DB
   implementation and config."
-  [{:keys [impl] :as config}]
-  (when-let [new-impl (@constructor-store impl)]
-    (new-impl config)))
+  [{{:keys [subprotocol]} :db :as config}]
+  (if-let [new-impl (@constructor-store (keyword subprotocol))]
+    (new-impl config)
+    (do
+      (log/error "Sorry, support for" subprotocol "is not implemented yet.")
+      (System/exit 1))))

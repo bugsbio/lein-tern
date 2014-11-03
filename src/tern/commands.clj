@@ -4,8 +4,7 @@
             [tern.file            :as f :refer [fname]]
             [tern.implementations :as impl]
             [tern.log             :as log]
-            [tern.migrate         :as migrate]
-            [tern.jdbc            :as jdbc]))
+            [tern.migrate         :as migrate]))
 
 (defn init
   "Creates the table used by `tern` to track versions."
@@ -77,7 +76,7 @@
     (let [impl    (impl/factory config)
           version (db/version impl)]
       (log/info "#######################################################")
-      (log/info "Rolling back ALL migrations")
+      (log/info (log/danger "Rolling back ALL migrations"))
       (log/info "#######################################################")
       (migrate/reset impl version)
       (log/info "Reset complete"))))

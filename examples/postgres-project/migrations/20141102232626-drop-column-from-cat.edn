@@ -1,0 +1,6 @@
+{:up
+ [{:alter-table :cats
+   :drop-columns [:favourite-food]}]
+ :down
+ [{:alter-table :cats
+   :add-columns [[:favourite-food "TEXT" "DEFAULT 'fish'"]]}]}

@@ -14,19 +14,6 @@
         :password    ""
         :subprotocol "postgresql"}})
 
-(defn- infer-implementation
-  "Infers the correct implementation to use for a given DB spec.
-  Unfortunately this pretty badly violates the open/closed principle,
-  but... we'll think about that later."
-  [{db-spec :db :as config}]
-  (or (:impl config)
-      (case (:subprotocol db-spec)
-        "postgresql" :jdbc
-        (do (if-let [subprotocol (:subprotocol db-spec)]
-              (log/error "Sorry," subprotocol "is not yet supported.")
-              (log/error "Your DB config appears to be incomplete. Run" (log/highlight "lein tern config") "to check it."))
-          (System/exit 1)))))
-
 (defn init-colors
   "Disable terminal colors if the user has set `:color` to false"
   [config]
@@ -40,5 +27,4 @@
   (-> default-config
       (deep-merge leiningen-config)
       (deep-merge user-config)
-      (init-colors)
-      (assoc-result :impl infer-implementation)))
+      (init-colors)))
