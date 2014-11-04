@@ -1,1 +1,1 @@
-(ns postgres-project.core)
+(ns mysql-project.core)

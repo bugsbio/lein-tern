@@ -1,6 +1,6 @@
 (defproject postgres-project "0.1.0-SNAPSHOT"
   :description "Example Postgresql project using Tern"
-  :url "http://github.com/rsslldnphy/tern"
+  :url "http://github.com/bugsbio/tern"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[tern "0.1.0-SNAPSHOT"]]
@@ -9,5 +9,5 @@
 
   :profiles {:dev {:source-paths ["dev"]}}
 
-  :tern {:init postgres-project.migrations/configure-tern
+  :tern {:init postgres-project.migrations/configure
          :migration-dir "migrations"})
