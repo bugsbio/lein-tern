@@ -40,6 +40,11 @@
   [filename]
   (style filename :magenta))
 
+(defn danger
+  "Print warning text in red"
+  [warning]
+  (style warning :red))
+
 (defn keyword
   "Print keywords in blue."
   [kw]

@@ -1,5 +1,0 @@
-{:up
- [{:alter-table :cats
-   :drop-columns [:favourite-food]}]
- :down
- []}

@@ -19,6 +19,5 @@
                :password "secret!"
                :user "root"}
          :color true
-         :migration-dir "tern-migrations"
-         :impl :jdbc}
+         :migration-dir "tern-migrations"}
         (init dummy-project {:db {:password "secret!"}}))
