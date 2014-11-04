@@ -1,5 +1,7 @@
 # tern
 
+[![Build Status](https://travis-ci.org/rsslldnphy/tern.png?branch=master)](https://travis-ci.org/rsslldnphy/tern)
+
 The [Artic Tern](http://en.wikipedia.org/wiki/Arctic_tern) holds the
 long-distance record for bird migration; therein lies the flimsy justification
 for the name of this plugin, which handles database migrations.

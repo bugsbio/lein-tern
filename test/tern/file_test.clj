@@ -14,7 +14,7 @@
         (generate-name config "create-pants"))
 
 (expect {:up [] :down []}
-        (let [config   {:migration-dir "migrations"}
+        (let [config   {:migration-dir "examples/postgres-project/migrations"}
               filename (new-migration config "create-cats")
               content  (edn/read-string (slurp filename))]
           (.delete (io/file filename))
