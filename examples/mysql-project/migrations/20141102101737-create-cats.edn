@@ -1,0 +1,7 @@
+{:up
+ [{:create-table :cats
+   :columns [[:id   "INT" "PRIMARY KEY"]
+             [:name "TEXT"      "NOT NULL"]
+             [:paws "INT"]]}]
+ :down
+ [{:drop-table :cats}]}

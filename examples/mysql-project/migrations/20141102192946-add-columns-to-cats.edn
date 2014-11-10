@@ -1,0 +1,7 @@
+{:up
+ [{:alter-table :cats
+   :add-columns [[:favourite-food "VARCHAR(255)" "DEFAULT 'fish'"]
+                 [:favourite-toy  "VARCHAR(255)" "DEFAULT 'gun'"]]}]
+ :down
+ [{:alter-table :cats
+   :drop-columns [:favourite-food :favourite-toy]}]}
