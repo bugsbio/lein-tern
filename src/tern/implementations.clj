@@ -1,11 +1,12 @@
 (ns tern.implementations
   (:require [tern.postgresql :as postgresql]
+            [tern.mysql      :as mysql]
             [tern.log        :as log]))
 
 (def ^{:doc "A map of available migrator implementations."
        :private true}
   constructor-store
-  (atom {:postgresql postgresql/->PostgresqlMigrator}))
+  (atom {:postgresql postgresql/->PostgresqlMigrator :mysql mysql/->MysqlMigrator}))
 
 (defn register!
   "Register a new tern implementation. This function
