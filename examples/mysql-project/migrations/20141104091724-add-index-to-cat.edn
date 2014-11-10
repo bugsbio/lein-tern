@@ -5,4 +5,5 @@
    :columns [:name]}]
 
  :down
- [{:drop-index :cat-name}]}
+ [{:drop-index :cat-name
+   :on :cats}]}

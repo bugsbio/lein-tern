@@ -2,7 +2,9 @@
   (:require [tern.db           :refer :all]
             [tern.log          :as log]
             [clojure.java.jdbc :as jdbc]
-            [clojure.string    :as s]))
+            [clojure.string    :as s])
+  (:import [java.util Date]
+           [java.sql PreparedStatement Timestamp]))
 
 (def ^{:doc "Set of supported commands. Used in `generate-sql` dispatch."
        :private true}
@@ -58,9 +60,9 @@
 
 (defmethod generate-sql
   :drop-index
-  [{index :drop-index}]
+  [{index :drop-index table :on}]
   (log/info " - Dropping index" (log/highlight (name index)))
-  [(format "DROP INDEX %s" (to-sql-name index))])
+  [(format "DROP INDEX %s ON %s" (to-sql-name index) (to-sql-name table))])
 
 (defmethod generate-sql
   :default
@@ -95,7 +97,7 @@
          (generate-sql
            {:create-table version-table
             :columns [[:version "VARCHAR(14)" "NOT NULL"]
-                      [:created "TIMESTAMP" "NOT NULL DEFAULT UNIX_TIMESTAMP(NOW())"]]})))
+                      [:created "TIMESTAMP"   "NOT NULL"]]})))
 
 (defn- psql-error-message
   [e]
@@ -126,9 +128,14 @@
       :row-fn :version
       :result-set-fn first)))
 
+(defn- current-timestamp
+  []
+  (str "{ts '" (Timestamp. (.getTime (Date.))) "'}"))
+
 (defn- update-schema-version
   [version-table version]
-  (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
+  (format "INSERT INTO %s (version, created) VALUES (%s, %s)"
+          version-table version (current-timestamp)))
 
 (defn- run-migration!
   [{:keys [db version-table]} version commands]

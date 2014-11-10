@@ -1,7 +1,7 @@
 {:up
  [{:create-table :cats
-   :columns [[:id   "INT" "PRIMARY KEY"]
-             [:name "TEXT"      "NOT NULL"]
+   :columns [[:id   "INT"  "PRIMARY KEY"]
+             [:name "VARCHAR(255)" "NOT NULL"]
              [:paws "INT"]]}]
  :down
  [{:drop-table :cats}]}
