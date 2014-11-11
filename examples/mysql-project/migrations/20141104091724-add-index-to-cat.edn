@@ -1,0 +1,9 @@
+{:up
+ [{:create-index :cat-name
+   :on :cats
+   :unique true
+   :columns [:name]}]
+
+ :down
+ [{:drop-index :cat-name
+   :on :cats}]}
