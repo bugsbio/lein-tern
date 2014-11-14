@@ -1,6 +1,6 @@
 # tern - migrations as data
 
-[![Build Status](https://travis-ci.org/rsslldnphy/tern.png?branch=master)](https://travis-ci.org/rsslldnphy/tern)
+[![Build Status](https://travis-ci.org/BUGSBio/lein-tern.svg?branch=master)](https://travis-ci.org/BUGSBio/lein-tern)
 
 The [Artic Tern](http://en.wikipedia.org/wiki/Arctic_tern) holds the
 long-distance record for bird migration; therein lies the flimsy justification
@@ -39,15 +39,15 @@ NB. There are example postgresql and mysql projects in the `examples` directory.
 
 ### Installation & Configuration
 
-Add `[tern "0.1.0"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
+Add `[lein-tern "0.1.0"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
 
 ```clojure
 (defproject postgres-project "0.1.0"
   :description "Example Postgresql project using Tern"
-  :url "http://github.com/bugsbio/tern"
+  :url "http://github.com/bugsbio/lein-tern"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :plugins [[tern "0.1.0-SNAPSHOT"]]
+  :plugins [[lein-tern "0.1.0"]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [postgresql "9.3-1102.jdbc41"]]
 
@@ -164,4 +164,6 @@ Pull requests are welcome! Thank you for wanting to contribute. Here's the proce
 
 If you're new to open source, or git, or even Clojure, and you're stuck with any of this, don't worry, just create an issue or a pull-request and we'll happily help you out if we can.
 
+## Acknowledgements
 
+Thanks to @eightbitraptor for adding MySQL support.

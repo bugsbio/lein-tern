@@ -1,6 +1,6 @@
-(defproject tern "0.1.0-SNAPSHOT"
+(defproject lein-tern "0.1.0-SNAPSHOT"
   :description "Migrations as data"
-  :url "http://github.com/rsslldnphy/tern"
+  :url "http://github.com/bugsbio/lein-tern"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.6.0"]
