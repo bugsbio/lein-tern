@@ -9,5 +9,5 @@
 
   :profiles {:dev {:source-paths ["dev"]}}
 
-  :tern {:init mysql-project.migrations/configure-tern
+  :tern {:init mysql-project.migrations/configure
          :migration-dir "migrations"})

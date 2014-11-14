@@ -1,3 +1,3 @@
-(ns postgres-project.core-test
+(ns mysql-project.core-test
   (:require [clojure.test :refer :all]
-            [postgres-project.core :refer :all]))
+            [mysql-project.core :refer :all]))
