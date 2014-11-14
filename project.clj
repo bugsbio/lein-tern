@@ -3,6 +3,7 @@
   :url "http://github.com/bugsbio/lein-tern"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
+  :signing {:gpg-key "DF49164D"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [clj-time "0.8.0"]
                  [org.clojure/java.jdbc "0.3.2"]
