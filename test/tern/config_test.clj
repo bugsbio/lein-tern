@@ -21,3 +21,14 @@
          :color true
          :migration-dir "tern-migrations"}
         (init dummy-project {:db {:password "secret!"}}))
+
+(expect {:migration-dir "migrations"
+         :version-table "schema_versions"
+         :color true
+         :db  {:host        "localhost"
+               :port        5432
+               :database    "postgres"
+               :user        "postgres"
+               :password    ""
+               :subprotocol "postgresql"}}
+        (init nil {}))

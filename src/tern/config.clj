@@ -25,6 +25,6 @@
   where no values are set, and attempts to infer the implementation to use."
   [leiningen-config user-config]
   (-> default-config
-      (deep-merge leiningen-config)
-      (deep-merge user-config)
+      (deep-merge (or leiningen-config {}))
+      (deep-merge (or user-config {}))
       (init-colors)))
