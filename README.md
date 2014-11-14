@@ -31,7 +31,7 @@ with the specifics of your datastore yourself - in every migration that you writ
          :drop-columns [:dislikes]]}
 ```
 
-The trade-off here is that if you want to do something in a migration, Tern has to support it. The upside is that the code to support it only needs to be written once, and we've put some effort into making Tern easy to extend with new commands and new datastores. For example, while Tern was originally written with Postgres support only, @eightbitraptor was able to add MySQL support over the course of a few hours at the London Clojure Dojo.
+The trade-off here is that if you want to do something in a migration, Tern has to support it. The upside is that the code to support it only needs to be written once, and we've put some effort into making Tern easy to extend with new commands and new datastores. For example, while Tern was originally written with Postgres support only, [@eightbitraptor](https://github.com/eightbitraptor/) was able to add MySQL support over the course of a few hours at the London Clojure Dojo.
 
 ## Usage
 
@@ -166,4 +166,4 @@ If you're new to open source, or git, or even Clojure, and you're stuck with any
 
 ## Acknowledgements
 
-Thanks to @eightbitraptor for adding MySQL support.
+Thanks to [@eightbitraptor](https://github.com/eightbitraptor/) for adding MySQL support.
