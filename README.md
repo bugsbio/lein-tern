@@ -1,6 +1,6 @@
 # tern - migrations as data
 
-[![Build Status](https://travis-ci.org/BUGSBio/lein-tern.svg?branch=master)](https://travis-ci.org/BUGSBio/lein-tern)
+[![Build Status](https://travis-ci.org/bugsbio/lein-tern.svg?branch=master)](https://travis-ci.org/bugsbio/lein-tern)
 
 The [Artic Tern](http://en.wikipedia.org/wiki/Arctic_tern) holds the
 long-distance record for bird migration; therein lies the flimsy justification
