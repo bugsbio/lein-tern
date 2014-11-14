@@ -85,6 +85,7 @@ Again, see the example projects for details, but here's what it might look like,
         :database    (System/getenv "DB_DATABASE")
         :user        (System/getenv "DB_USER")
         :password    (System/getenv "DB_PASSWORD")}})
+```
 
 You can now see a list of available commands by running `lein help tern`, and confirm that Tern is using the correct configuration values by running `lein tern config`.
 
