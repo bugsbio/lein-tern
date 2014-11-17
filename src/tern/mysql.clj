@@ -11,14 +11,21 @@
   supported-commands
   #{:create-table :drop-table :alter-table :create-index :drop-index})
 
+(defn generate-table-spec
+  [{:keys [primary-key] :as command}]
+  (when primary-key
+    (format "PRIMARY KEY (%s)" (to-sql-list primary-key))))
+
 (defmulti generate-sql
   (fn [c] (some supported-commands (keys c))))
 
 (defmethod generate-sql
   :create-table
-  [{table :create-table columns :columns}]
+  [{table :create-table columns :columns :as command}]
   (log/info " - Creating table" (log/highlight (name table)))
-  [(apply jdbc/create-table-ddl table columns)])
+  (if-let [table-spec (generate-table-spec command)]
+    [(apply jdbc/create-table-ddl table (conj columns [table-spec]))]
+    [(apply jdbc/create-table-ddl table columns)]))
 
 (defmethod generate-sql
   :drop-table

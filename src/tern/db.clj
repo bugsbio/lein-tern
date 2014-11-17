@@ -35,3 +35,8 @@
   "Convert a possibly kebab-case keyword into a snakecase string"
   [k]
   (s/replace (name k) "-" "_"))
+
+(defn to-sql-list
+  "Convert a list of possibly kebab cased keys into a list of snakecased strings"
+  [ks]
+  (s/join ", " (map to-sql-name ks)))

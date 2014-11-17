@@ -3,7 +3,7 @@
   :url "http://github.com/bugsbio/lein-tern/examples/mysql-project"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
-  :plugins [[lein-tern "0.1.1"]]
+  :plugins [[lein-tern "0.1.2"]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [mysql/mysql-connector-java "5.1.6"]]
 

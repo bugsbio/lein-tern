@@ -2,5 +2,5 @@
   (:require [tern.migrate :refer :all]
             [expectations :refer :all]))
 
-(expect "20141104091724"
+(expect "20141117094728"
         (version {:migration-dir "examples/postgres-project/migrations"}))

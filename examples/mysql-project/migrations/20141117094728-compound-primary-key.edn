@@ -1,0 +1,7 @@
+{:up
+ [{:create-table :dogs
+   :columns [[:name  "VARCHAR(255)" "NOT NULL"]
+             [:owner "VARCHAR(255)" "NOT NULL"]]
+   :primary-key [:name :owner]}]
+ :down
+ [{:drop-table :dogs}]}

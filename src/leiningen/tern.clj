@@ -24,7 +24,7 @@
   ([project cmd & args]
    (let [user-config-fn (or (-> project :tern :init) 'tern.user/config)
          tern-version   (System/getProperty "tern.version")
-         tern-profile   {:dependencies [['lein-tern "0.1.1"]]}]
+         tern-profile   {:dependencies [['lein-tern "0.1.2"]]}]
      (eval-in-project
        (project/merge-profiles project [tern-profile])
        `(do
