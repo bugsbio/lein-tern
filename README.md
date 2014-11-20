@@ -179,6 +179,6 @@ If you're new to open source, or git, or even Clojure, and you're stuck with any
 Thanks to [@eightbitraptor](https://github.com/eightbitraptor/) for adding MySQL support.
 
 ## Changelog
-0.1.1 Fix broken initial release
-0.1.2 Support composite primary keys
-0.1.3 Breaking change for MySQL users - use Unix timestamp in schema versions table
+* 0.1.1 Fix broken initial release
+* 0.1.2 Support composite primary keys
+* 0.1.3 Breaking change for MySQL users - use Unix timestamp in schema versions table
