@@ -19,14 +19,16 @@
   "Generates a name that will order chronologically by
   prepending the current timestamp to the name supplied
   by the user."
-  [{:keys [migration-dir]} name]
+  [migration-dir name]
   (str migration-dir File/separator (timestamp!) "-" name ".edn"))
 
 (defn new-migration
   "Generates a new migration filename, creates it,
-  and returns its name."
-  [config name]
-  (doto (generate-name config name) (spit empty-migration)))
+  and returns its name. Creates the migration directory if it
+  doesn't already exist."
+  [{:keys [migration-dir]} name]
+  (.mkdir (File. migration-dir))
+  (doto (generate-name migration-dir name) (spit empty-migration)))
 
 (defn fname
   "Wrapper for file.getName() because I am a bad person,

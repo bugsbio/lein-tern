@@ -11,7 +11,7 @@
         (fname (io/file "pants.txt")))
 
 (expect #"^migrations/\d+-create-pants.edn$"
-        (generate-name config "create-pants"))
+        (generate-name "migrations" "create-pants"))
 
 (expect {:up [] :down []}
         (let [config   {:migration-dir "examples/postgres-project/migrations"}
