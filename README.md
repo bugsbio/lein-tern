@@ -39,15 +39,15 @@ NB. There are example postgresql and mysql projects in the `examples` directory.
 
 ### Installation & Configuration
 
-Add `[lein-tern "0.1.2"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
+Add `[lein-tern "0.1.3"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
 
 ```clojure
-(defproject postgres-project "0.1.2"
+(defproject postgres-project "0.1.3"
   :description "Example Postgresql project using Tern"
   :url "http://github.com/bugsbio/lein-tern"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :plugins [[lein-tern "0.1.2"]]
+  :plugins [[lein-tern "0.1.3"]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [postgresql "9.3-1102.jdbc41"]]
 
@@ -70,7 +70,7 @@ Again, see the example projects for details, but here's what it might look like,
 
 ```clojure
 ;; project.clj
-(defproject postgres-project "0.1.2"
+(defproject postgres-project "0.1.3"
   ;; ...
   :profiles {:dev {:source-paths ["dev"]}}
   :tern {:init postgres-project.migrations/configure
@@ -177,3 +177,8 @@ If you're new to open source, or git, or even Clojure, and you're stuck with any
 ## Acknowledgements
 
 Thanks to [@eightbitraptor](https://github.com/eightbitraptor/) for adding MySQL support.
+
+## Changelog
+0.1.1 Fix broken initial release
+0.1.2 Support composite primary keys
+0.1.3 Breaking change for MySQL users - use Unix timestamp in schema versions table
