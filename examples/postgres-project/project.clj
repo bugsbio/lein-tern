@@ -3,7 +3,7 @@
   :url "http://github.com/bugsbio/lein-tern/examples/postgres-project"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
-  :plugins [[lein-tern "0.1.3"]]
+  :plugins [[lein-tern "0.1.4-SNAPSHOT"]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [postgresql "9.3-1102.jdbc41"]]
 
