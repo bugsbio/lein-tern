@@ -104,7 +104,7 @@
          (generate-sql
            {:create-table version-table
             :columns [[:version "VARCHAR(14)" "NOT NULL"]
-                      [:created "TIMESTAMP"   "NOT NULL"]]})))
+                      [:created "BIGINT"      "NOT NULL"]]})))
 
 (defn- psql-error-message
   [e]
@@ -137,7 +137,7 @@
 
 (defn- current-timestamp
   []
-  (str "{ts '" (Timestamp. (.getTime (Date.))) "'}"))
+  (.getTime (Date.)))
 
 (defn- update-schema-version
   [version-table version]
