@@ -39,7 +39,7 @@ NB. There are example postgresql and mysql projects in the `examples` directory.
 
 ### Installation & Configuration
 
-Add `[lein-tern "0.1.4-SNAPSHOT"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
+Add `[lein-tern "0.1.3"]` to the `:plugins` vector of your project.clj, and add a `:tern` key with the following (optional) configuration, shown with default values:
 
 ```clojure
 (defproject postgres-project "0.1.0"
@@ -128,10 +128,10 @@ Currently Tern supports creating and dropping tables, columns, and indexes, for 
 {:alter-table :cats :add-columns [[:favourite-food "TEXT" "DEFAULT 'fish'"]]}
 
 ;; Dropping columns
-:alter-table :cats :drop-columns [:favourite-food :favourite-toy]}
+{:alter-table :cats :drop-columns [:favourite-food :favourite-toy]}
 
 ;; Creating indexes
-:create-index :cat-name :on :cats :unique true :columns [:name]}
+{:create-index :cat-name :on :cats :unique true :columns [:name]}
 
 ;; Dropping indexs
 {:drop-index :cat-name :on :cats}

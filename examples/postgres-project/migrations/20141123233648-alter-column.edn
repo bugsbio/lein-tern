@@ -1,0 +1,6 @@
+{:up
+ [{:alter-table :cats
+   :alter-columns [["favourite_food" "SET NOT NULL"]]}]
+ :down
+ [{:alter-table :cats
+   :alter-columns [["favourite_food" "DROP NOT NULL"]]}]}

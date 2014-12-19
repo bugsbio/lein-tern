@@ -35,22 +35,29 @@
 
 (defmethod generate-sql
   :alter-table
-  [{table :alter-table add-columns :add-columns drop-columns :drop-columns}]
-  (log/info " - Altering table" (log/highlight (name table)))
+  [{:keys [alter-table add-columns drop-columns alter-columns]}]
+  (log/info " - Altering table" (log/highlight (name alter-table)))
   (let [additions
         (for [[column & specs] add-columns]
           (do (log/info "    * Adding column" (log/highlight (name column)))
             (format "ALTER TABLE %s ADD COLUMN %s %s"
-                    (to-sql-name table)
+                    (to-sql-name alter-table)
                     (to-sql-name column)
                     (s/join " " specs))))
         removals
         (for [column drop-columns]
           (do (log/info "    * Dropping column" (log/highlight (name column)))
             (format "ALTER TABLE %s DROP COLUMN %s"
-                    (to-sql-name table)
-                    (to-sql-name column))))]
-    (concat removals additions)))
+                    (to-sql-name alter-table)
+                    (to-sql-name column))))
+        alterations
+        (for [[column & specs] alter-columns]
+          (do (log/info "    * Altering column" (log/highlight (name column)))
+            (format "ALTER TABLE %s ALTER COLUMN %s %s"
+                    (to-sql-name alter-table)
+                    (to-sql-name column)
+                    (s/join " " specs))))]
+    (concat removals additions alterations)))
 
 (defmethod generate-sql
   :create-index

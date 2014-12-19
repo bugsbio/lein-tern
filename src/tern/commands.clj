@@ -20,6 +20,9 @@
   "Creates a new migration file using the given name.
   It is preceded by a timestamp, so as to preserve ordering."
   [config name]
+  (when (empty? name)
+    (log/warn "You must specify a name for your migration.")
+    (System/exit 1))
   (log/info "Creating:" (f/new-migration config name)))
 
 (defn config
