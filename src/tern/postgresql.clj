@@ -9,7 +9,7 @@
 (def ^{:doc "Set of supported commands. Used in `generate-sql` dispatch."
        :private true}
   supported-commands
-  #{:create-table :drop-table :alter-table :create-index :drop-index})
+  #{:create-table :drop-table :alter-table :create-index :drop-index :create-foreign-key :drop-foreign-key})
 
 (defn generate-table-spec
   [{:keys [primary-key] :as command}]
@@ -77,6 +77,29 @@
   [{index :drop-index}]
   (log/info " - Dropping index" (log/highlight (name index)))
   [(format "DROP INDEX %s" (to-sql-name index))])
+
+(defmethod generate-sql
+  :create-foreign-key
+  [{foreign-key :create-foreign-key
+    table       :on
+    columns     :columns
+    ref-table   :ref-table
+    ref-columns :ref-columns}]
+  (log/info " - Creating foreign key" (log/highlight (name foreign-key)) "on" (log/highlight (name table))
+    "referencing" (log/highlight (name ref-table)))
+  [(format "ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)"
+           (to-sql-name table)
+           (to-sql-name foreign-key)
+           (s/join ", " (map to-sql-name columns))
+           (to-sql-name ref-table)
+           (s/join ", " (map to-sql-name ref-columns)))])
+
+(defmethod generate-sql
+  :drop-foreign-key
+  [{foreign-key :drop-foreign-key
+    table       :on}]
+  (log/info " - Dropping foreign key" (log/highlight (name foreign-key)) "on" (log/highlight (name foreign-key)))
+  [(format "ALTER TABLE %s DROP CONSTRAINT %s" (to-sql-name table) (to-sql-name foreign-key))])
 
 (defmethod generate-sql
   :default

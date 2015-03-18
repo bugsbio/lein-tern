@@ -1,0 +1,14 @@
+{:up
+ [{:alter-table :dogs
+   :add-columns [[:favourite-cat "BIGINT"]]}
+  {:create-foreign-key :favourite-cat-fk
+   :on :dogs
+   :columns [:favourite-cat]
+   :ref-table :cats
+   :ref-columns [:id]}]
+
+ :down
+ [{:drop-foreign-key :favourite-cat-fk
+   :on :dogs}
+  {:alter-table :dogs
+   :drop-columns [:favourite-cat]}]}

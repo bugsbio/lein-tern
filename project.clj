@@ -1,4 +1,4 @@
-(defproject lein-tern "0.1.4-SNAPSHOT"
+(defproject lein-tern "0.1.7-SNAPSHOT"
   :description "Migrations as data"
   :url "http://github.com/bugsbio/lein-tern"
   :license {:name "MIT"
