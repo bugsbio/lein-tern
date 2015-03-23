@@ -1,0 +1,5 @@
+{:up
+ [{:create-view :tomcats
+   :as "SELECT * FROM cats where name = 'tom'"}]
+ :down
+ [{:drop-view :tomcats}]}

@@ -131,10 +131,18 @@ Currently Tern supports creating and dropping tables, columns, and indexes, for 
 {:alter-table :cats :drop-columns [:favourite-food :favourite-toy]}
 
 ;; Creating indexes
-{:create-index :cat-name :on :cats :unique true :columns [:name]}
+{:create-index :cat_name :on :cats :unique true :columns [:name]}
 
 ;; Dropping indexs
-{:drop-index :cat-name :on :cats}
+{:drop-index :cat_name :on :cats}
+
+
+;; Creating views (postgres only)
+{:create-view :tomcats
+ :as "SELECT * FROM cats WHERE name = 'tom'"}
+
+;; Dropping views (postgres only)
+{:drop-view :tomcats}
 ```
 
 You can have as many commands as you like in the `:up` and `:down` vectors; they will be executed in order.
@@ -181,3 +189,4 @@ Thanks to [@eightbitraptor](https://github.com/eightbitraptor/) for adding MySQL
 ## Changelog
 * 0.1.2 Support composite primary keys
 * 0.1.3 Breaking change for MySQL users - use Unix timestamp in schema versions table
+* 0.1.4 Allow creation of views in Postgresql
