@@ -36,7 +36,7 @@
 (defmethod generate-sql
   :create-view
   [{view :create-view query :as}]
-  [(format "CREATE VIEW %s AS %s" (to-sql-name view) query)])
+  [(format "CREATE OR REPLACE VIEW %s AS %s" (to-sql-name view) query)])
 
 (defmethod generate-sql
   :drop-view
