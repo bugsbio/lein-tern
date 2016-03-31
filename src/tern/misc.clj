@@ -16,3 +16,9 @@
 (def last-but-one
   ^{:doc "Return the last but one element of a sequence."}
   (comp last butlast))
+
+(defn trunc-str
+  [s n]
+  (if (> (count s) n)
+    (str (subs s 0 n) "...")
+    s))

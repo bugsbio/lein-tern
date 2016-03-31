@@ -39,4 +39,5 @@
               "migrate"       (c/migrate       config#)
               "rollback"      (c/rollback      config#)
               "reset"         (c/reset         config#)
-              "new-migration" (c/new-migration config# ~(first args)))))))))
+              "new-migration" (c/new-migration config# ~(first args))))
+          (System/exit 0))))))

@@ -1,15 +1,19 @@
 (ns tern.postgresql
-  (:require [tern.db           :refer :all]
-            [tern.log          :as log]
-            [clojure.java.jdbc :as jdbc]
-            [clojure.string    :as s])
+  (:require [tern.db            :refer :all]
+            [tern.log           :as log]
+            [clojure.java.jdbc  :as jdbc]
+            [clojure.string     :as s]
+            [clojure.java.shell :refer [sh]]
+            [tern.misc          :as m])
   (:import [org.postgresql.util PSQLException]
            [java.sql BatchUpdateException]))
 
 (def ^{:doc "Set of supported commands. Used in `generate-sql` dispatch."
        :private true}
   supported-commands
-  #{:create-table :drop-table :alter-table :create-index :drop-index :create-view :drop-view :create-foreign-key :drop-foreign-key})
+  #{:create-table :drop-table :alter-table :create-index :drop-index :create-view :drop-view 
+    :create-foreign-key :drop-foreign-key
+    :raw-sql})
 
 (defn generate-table-spec
   [{:keys [primary-key] :as command}]
@@ -186,23 +190,19 @@
   [version-table version]
   (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
 
-(defn- run-migration!
-  [{:keys [db version-table]} version commands]
-  (when-not (vector? commands)
-    (log/error "Values for `up` and `down` must be vectors of commands"))
-  (try
-    (apply jdbc/db-do-commands
-           (db-spec db)
-           (conj (into [] (mapcat generate-sql commands))
-                 (update-schema-version version-table version)))
-    (catch PSQLException e
-      (log/error "Migration failed:" (psql-error-message e))
-      (log/error e)
-      (System/exit 1))
-    (catch BatchUpdateException e
-      (log/error "Migration failed:" (batch-update-error-message e))
-      (log/error e)
-      (System/exit 1))))
+(defn- run-script-migration!
+  [{:keys [host port database user password]} scripts]
+  (doseq [script scripts]
+    (log/info " - Running SQL script" (log/highlight script))
+    (log/info (sh "psql" "-U" user "-h" host "-p" port database "-f" script
+                  :add-env {"PGPASSWORD" password}))))
+
+(defn- run-schema-migration!
+  [trans {:keys [version-table]} version commands]
+  (apply jdbc/db-do-commands
+         trans
+         (conj (into [] (map generate-sql commands))
+               (update-schema-version version-table version))))
 
 (defn- validate-commands
   [commands]
@@ -214,6 +214,34 @@
                 (log/error "The values for `up` and `down` must be either a map or a vector of maps.")
                 (System/exit 1))))
 
+(defn- run-migration!
+  [{:keys [db] :as config} version commands]
+  (let [commands   (into [] 
+                     (flatten (validate-commands commands)))
+        migrations (remove :with-sql-script commands)
+        _ (println ">>>1 " migrations )
+        _ (println ">>>2 " (map generate-sql migrations) )
+        scripts    (map :with-sql-script (filter :with-sql-script commands))]
+    (if-not (vector? commands)
+      (log/error "Values for `up` and `down` must be vectors of commands")
+
+      (try
+        ; (jdbc/with-db-transaction [trans (db-spec db)]
+        ;   (run-schema-migration! trans config version migrations)
+        ;   (run-script-migration! (:db config) scripts))
+
+        (run-schema-migration! (db-spec db) config version migrations)
+        (run-script-migration! (:db config) scripts)
+
+        (catch PSQLException e
+          (log/error "Migration failed:" (psql-error-message e))
+          (log/error e)
+          (System/exit 1))
+        (catch BatchUpdateException e
+          (log/error "Migration failed:" (batch-update-error-message e))
+          (log/error e)
+          (System/exit 1))))))
+
 (defrecord PostgresqlMigrator
   [config]
   Migrator
@@ -222,4 +250,4 @@
   (version [this]
     (or (get-version config) "0"))
   (migrate [this version commands]
-    (run-migration! config version (validate-commands commands))))
+    (run-migration! config version commands)))
