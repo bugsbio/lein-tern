@@ -1,15 +1,17 @@
 (ns tern.postgresql
-  (:require [tern.db           :refer :all]
-            [tern.log          :as log]
-            [clojure.java.jdbc :as jdbc]
-            [clojure.string    :as s])
+  (:require [tern.db            :refer :all]
+            [tern.log           :as log]
+            [clojure.java.jdbc  :as jdbc]
+            [clojure.string     :as s]
+            [clojure.java.shell :refer [sh]])
   (:import [org.postgresql.util PSQLException]
            [java.sql BatchUpdateException]))
 
 (def ^{:doc "Set of supported commands. Used in `generate-sql` dispatch."
        :private true}
   supported-commands
-  #{:create-table :drop-table :alter-table :create-index :drop-index :create-view :drop-view :create-foreign-key :drop-foreign-key})
+  #{:create-table :drop-table :alter-table :create-index :drop-index :create-view :drop-view 
+    :create-foreign-key :drop-foreign-key})
 
 (defn generate-table-spec
   [{:keys [primary-key] :as command}]
@@ -186,23 +188,21 @@
   [version-table version]
   (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
 
-(defn- run-migration!
-  [{:keys [db version-table]} version commands]
-  (when-not (vector? commands)
-    (log/error "Values for `up` and `down` must be vectors of commands"))
-  (try
-    (apply jdbc/db-do-commands
-           (db-spec db)
-           (conj (into [] (mapcat generate-sql commands))
-                 (update-schema-version version-table version)))
-    (catch PSQLException e
-      (log/error "Migration failed:" (psql-error-message e))
-      (log/error e)
-      (System/exit 1))
-    (catch BatchUpdateException e
-      (log/error "Migration failed:" (batch-update-error-message e))
-      (log/error e)
-      (System/exit 1))))
+(defn- run-script-migration!
+  [{:keys [host port database user password]} script]
+  (log/info " - Running SQL script" (log/highlight script))
+  (let [{:keys [out err]} (sh "psql" "-U" user "-h" host "-p" port database "-f" script
+                              :add-env {"PGPASSWORD" password})]
+    (log/info out)
+    (when (not= err "")
+      (throw (ex-info "Error running script" {:script script :err err})))))
+
+(defn- run-schema-migrations!
+  [trans version-table version migrations]
+  (apply jdbc/db-do-commands
+         trans
+         (conj (into [] (mapcat generate-sql migrations))
+               (update-schema-version version-table version))))
 
 (defn- validate-commands
   [commands]
@@ -214,6 +214,43 @@
                 (log/error "The values for `up` and `down` must be either a map or a vector of maps.")
                 (System/exit 1))))
 
+(defn- extract-with-sql-script
+  [commands]
+  (let [migrations (into [] (butlast commands))
+        script     (:with-sql-script (last commands))]
+    (cond
+      (some :with-sql-script migrations)
+        (do
+          (log/error ":with-sql-script must occur only once and as the last command.")
+          (System/exit 1))
+      script {:migrations migrations 
+              :script script}
+      :else  {:migrations commands})))
+
+(defn- run-migration!
+  [{:keys [db version-table]} version commands]
+  (let [commands                    (validate-commands commands)
+        {:keys [migrations script]} (extract-with-sql-script commands)]
+    (if-not (vector? commands)
+      (log/error "Values for `up` and `down` must be vectors of commands")
+      (try
+        (jdbc/with-db-transaction [trans (db-spec db)]
+          (run-schema-migrations! trans version-table version migrations)
+          (when script
+            (run-script-migration! db script)))
+
+        (catch PSQLException e
+          (log/error "Migration failed:" (psql-error-message e))
+          (log/error e)
+          (System/exit 1))
+        (catch BatchUpdateException e
+          (log/error "Migration failed:" (batch-update-error-message e))
+          (log/error e)
+          (System/exit 1))
+        (catch clojure.lang.ExceptionInfo e
+          (log/error "Migration failed:" e)
+          (System/exit 1))))))
+
 (defrecord PostgresqlMigrator
   [config]
   Migrator
@@ -222,4 +259,4 @@
   (version [this]
     (or (get-version config) "0"))
   (migrate [this version commands]
-    (run-migration! config version (validate-commands commands))))
+    (run-migration! config version commands)))
