@@ -191,17 +191,19 @@
   (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
 
 (defn- run-script-migration!
-  [{:keys [host port database user password]} scripts]
-  (doseq [script scripts]
-    (log/info " - Running SQL script" (log/highlight script))
-    (log/info (sh "psql" "-U" user "-h" host "-p" port database "-f" script
-                  :add-env {"PGPASSWORD" password}))))
+  [{:keys [host port database user password]} script]
+  (log/info " - Running SQL script" (log/highlight script))
+  (let [{:keys [out err]} (sh "psql" "-U" user "-h" host "-p" port database "-f" script
+                              :add-env {"PGPASSWORD" password})]
+    (log/info out)
+    (when (not= err "")
+      (throw (ex-info "Error running script" {:script script :err err})))))
 
-(defn- run-schema-migration!
-  [trans {:keys [version-table]} version commands]
+(defn- run-schema-migrations!
+  [trans version-table version migrations]
   (apply jdbc/db-do-commands
          trans
-         (conj (into [] (map generate-sql commands))
+         (conj (into [] (mapcat generate-sql migrations))
                (update-schema-version version-table version))))
 
 (defn- validate-commands
@@ -214,24 +216,30 @@
                 (log/error "The values for `up` and `down` must be either a map or a vector of maps.")
                 (System/exit 1))))
 
+(defn- extract-with-sql-script
+  [commands]
+  (let [migrations (into [] (butlast commands))
+        script     (:with-sql-script (last commands))]
+    (cond
+      (some :with-sql-script migrations)
+        (do
+          (log/error ":with-sql-script must occur only once and as the last command.")
+          (System/exit 1))
+      script {:migrations migrations 
+              :script script}
+      :else  {:migrations commands})))
+
 (defn- run-migration!
-  [{:keys [db] :as config} version commands]
-  (let [commands   (into [] 
-                     (flatten (validate-commands commands)))
-        migrations (remove :with-sql-script commands)
-        _ (println ">>>1 " migrations )
-        _ (println ">>>2 " (map generate-sql migrations) )
-        scripts    (map :with-sql-script (filter :with-sql-script commands))]
+  [{:keys [db version-table]} version commands]
+  (let [commands                    (validate-commands commands)
+        {:keys [migrations script]} (extract-with-sql-script commands)]
     (if-not (vector? commands)
       (log/error "Values for `up` and `down` must be vectors of commands")
-
       (try
-        ; (jdbc/with-db-transaction [trans (db-spec db)]
-        ;   (run-schema-migration! trans config version migrations)
-        ;   (run-script-migration! (:db config) scripts))
-
-        (run-schema-migration! (db-spec db) config version migrations)
-        (run-script-migration! (:db config) scripts)
+        (jdbc/with-db-transaction [trans (db-spec db)]
+          (run-schema-migrations! trans version-table version migrations)
+          (when script
+            (run-script-migration! db script)))
 
         (catch PSQLException e
           (log/error "Migration failed:" (psql-error-message e))
@@ -240,6 +248,9 @@
         (catch BatchUpdateException e
           (log/error "Migration failed:" (batch-update-error-message e))
           (log/error e)
+          (System/exit 1))
+        (catch clojure.lang.ExceptionInfo e
+          (log/error "Migration failed:" e)
           (System/exit 1))))))
 
 (defrecord PostgresqlMigrator
