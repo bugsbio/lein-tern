@@ -3,8 +3,7 @@
             [tern.log           :as log]
             [clojure.java.jdbc  :as jdbc]
             [clojure.string     :as s]
-            [clojure.java.shell :refer [sh]]
-            [tern.misc          :as m])
+            [clojure.java.shell :refer [sh]])
   (:import [org.postgresql.util PSQLException]
            [java.sql BatchUpdateException]))
 
@@ -12,8 +11,7 @@
        :private true}
   supported-commands
   #{:create-table :drop-table :alter-table :create-index :drop-index :create-view :drop-view 
-    :create-foreign-key :drop-foreign-key
-    :raw-sql})
+    :create-foreign-key :drop-foreign-key})
 
 (defn generate-table-spec
   [{:keys [primary-key] :as command}]
