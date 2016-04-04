@@ -2,8 +2,7 @@
   (:require [tern.db            :refer :all]
             [tern.log           :as log]
             [clojure.java.jdbc  :as jdbc]
-            [clojure.string     :as s]
-            [clojure.java.shell :refer [sh]])
+            [clojure.string     :as s])
   (:import [org.postgresql.util PSQLException]
            [java.sql BatchUpdateException]))
 
