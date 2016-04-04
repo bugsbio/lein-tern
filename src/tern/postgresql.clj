@@ -189,13 +189,9 @@
   (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
 
 (defn- run-script-migration!
-  [{:keys [host port database user password]} script]
+  [trans script]
   (log/info " - Running SQL script" (log/highlight script))
-  (let [{:keys [out err]} (sh "psql" "-U" user "-h" host "-p" port database "-f" script
-                              :add-env {"PGPASSWORD" password})]
-    (log/info out)
-    (when (not= err "")
-      (throw (ex-info "Error running script" {:script script :err err})))))
+  (jdbc/execute! trans [(slurp script)]))
 
 (defn- run-schema-migrations!
   [trans version-table version migrations]
@@ -237,7 +233,7 @@
         (jdbc/with-db-transaction [trans (db-spec db)]
           (run-schema-migrations! trans version-table version migrations)
           (when script
-            (run-script-migration! db script)))
+            (run-script-migration! trans script)))
 
         (catch PSQLException e
           (log/error "Migration failed:" (psql-error-message e))
@@ -247,7 +243,7 @@
           (log/error "Migration failed:" (batch-update-error-message e))
           (log/error e)
           (System/exit 1))
-        (catch clojure.lang.ExceptionInfo e
+        (catch Exception e
           (log/error "Migration failed:" e)
           (System/exit 1))))))
 
