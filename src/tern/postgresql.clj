@@ -187,10 +187,19 @@
   [version-table version]
   (format "INSERT INTO %s (version) VALUES (%s)" version-table version))
 
+(defn- log-comments
+  "Pull out and print the postgres comments"
+  [contents]
+  (doseq [line (s/split contents #"\n")]
+    (when (.startsWith line "--")
+      (println line))))
+
 (defn- run-script-migration!
   [trans script]
   (log/info " - Running SQL script" (log/highlight script))
-  (jdbc/execute! trans [(slurp script)]))
+  (let [contents (slurp script)]
+    (log-comments contents)
+    (jdbc/execute! trans [contents])))
 
 (defn- run-schema-migrations!
   [trans version-table version migrations]
