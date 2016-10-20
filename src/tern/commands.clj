@@ -39,20 +39,36 @@
   (log/info (log/keyword "  :password    ") (:password db))
   (log/info (log/keyword "  :subprotocol ") (:subprotocol db)))
 
+(defn pending
+  "Just show what would be migrated"
+  [config up-to]
+  (let [impl       (impl/factory config)
+        from       (db/version impl)
+        migrations (migrate/pending-up-to config from up-to)
+        to         (migrate/version-to from migrations)]
+    (log/info "#########################################################")
+    (log/info "Pending migrations from " (log/highlight from) "to" (log/highlight to))
+    (log/info "#########################################################")
+    (doseq [migration migrations]
+      (log/info "Pending " (log/filename (fname migration))))
+    (when-not (seq migrations)
+      (log/info "No pending migrations between these timestamps"))))
+
 (defn migrate
-  "Runs any pending migrations to bring the database up to the latest version."
-  [config]
-  (let [impl    (impl/factory config)
-        from    (db/version impl)
-        to      (migrate/version config)
-        pending (migrate/pending config from)]
+  "Runs any pending migrations - if up-to not specified then will bring the database up to the latest version."
+  [config up-to]
+  (let [impl       (impl/factory config)
+        from       (db/version impl)
+        migrations (migrate/pending-up-to config from up-to)
+        to         (migrate/version-to from migrations)]
     (log/info "#######################################################")
     (log/info "Migrating from version" (log/highlight from) "to" (log/highlight to))
     (log/info "#######################################################")
-    (doseq [migration pending]
+    (doseq [migration migrations]
       (log/info "Processing" (log/filename (fname migration)))
-      (migrate/run impl migration))
-    (if (seq pending)
+      (migrate/run impl migration)
+      )
+    (if (seq migrations)
       (log/info "Migration complete")
       (log/info "There were no changes to apply"))))
 
