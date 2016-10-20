@@ -14,7 +14,7 @@
        (filter edn?)
        (sort-by fname)))
 
-(defn- parse-version
+(defn parse-version
   [migration]
   (s/replace (basename migration) #"-.*$" ""))
 
@@ -23,6 +23,13 @@
   [config]
   (when-let [migrations (seq (get-migrations config))]
     (parse-version (last migrations))))
+
+(defn version-to
+  ""
+  [from migrations-pending]
+  (if (seq migrations-pending)
+    (parse-version (last migrations-pending))
+    from))
 
 (defn already-run?
   "Returns an anonymous function that checks if a migration is older
@@ -39,6 +46,13 @@
   "Returns migrations that have already been run."
   [config current]
   (take-while (already-run? current) (get-migrations config)))
+
+(defn pending-up-to
+  [config current up-to]
+  (let [migrations (pending config current)]
+    (if up-to
+      (take-while (already-run? up-to) migrations)
+      migrations)))
 
 (defn previous-version
   "Takes a migration version as its argument and returns
